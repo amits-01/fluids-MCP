@@ -1,0 +1,36 @@
+orchestrator:
+  host: "0.0.0.0"
+  port: 8000
+  log_level: "info"
+
+sub_orchestrators:
+  fluids:
+    host: "0.0.0.0"
+    port: 8001
+    log_level: "info"
+
+leaf_servers:
+  generation:
+    host: "0.0.0.0"
+    port: 8002
+    log_level: "info"
+  validation:
+    host: "0.0.0.0"
+    port: 8003
+    log_level: "info"
+
+llm:
+  provider: "groq"
+  model: "llama3-8b-8192"
+  api_key: "${GROQ_API_KEY}"
+  temperature: 0.1
+
+backends:
+  validation_api:
+    base_url: "http://localhost:9000"
+    token: "${VALIDATION_API_TOKEN}"
+    timeout: 30
+
+logging:
+  level: "info"
+  format: "json"
