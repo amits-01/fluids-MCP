@@ -154,5 +154,5 @@ async def chat(request: MCPRequest):
 
 @app.get("/", response_class=HTMLResponse)
 async def chat_ui():
-    with open("ui/index.html", "r") as f:
+    with open("ui/index.html", "r", encoding="utf-8") as f:
         return f.read()

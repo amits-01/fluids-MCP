@@ -1,5 +1,5 @@
 import logging
-from typing import dict
+from typing import Dict, List, Optional
 from shared.models import ToolRegistration
 
 logger = logging.getLogger(__name__)
