@@ -84,8 +84,20 @@ async def discover_tools() -> list[dict]:
 
 @app.get("/health", response_model=HealthResponse)
 async def health():
+    sub_status = "unreachable"
+    try:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(
+                f"{FLUIDS_SUB_ORCHESTRATOR}/health",
+                timeout=3.0
+            )
+            if r.status_code == 200:
+                sub_status = "healthy"
+    except Exception:
+        sub_status = "unreachable"
+
     return HealthResponse(
-        status="healthy",
+        status=f"healthy | sub-orchestrator: {sub_status}",
         service="top-level-orchestrator",
         port=MY_PORT
     )
