@@ -81,7 +81,7 @@ async def health():
 
 @app.post("/execute", response_model=MCPResponse)
 async def execute(request: MCPRequest):
-    logger.info(f"Validation leaf received: {request.query}")
+    logger.info(f"[{request.request_id}] Validation leaf received: {request.query}")
     try:
         result = await validate_cfd_setup(request.query)
         return MCPResponse(

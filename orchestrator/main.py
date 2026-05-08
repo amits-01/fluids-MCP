@@ -118,9 +118,13 @@ async def list_tools():
 
 
 # entry point for all AI clients. Accepts natural language, routes to correct tool, returns result.
+
 @app.post("/chat", response_model=MCPResponse)
+
 async def chat(request: MCPRequest):
-    logger.info(f"Orchestrator received: {request.query}")
+
+    request = request.with_request_id()  # Add unique request ID for tracing
+    logger.info(f"[{request.request_id}] Orchestrator received: {request.query}")
 
     # Step 1 — Discover available tools
     tools = await discover_tools()

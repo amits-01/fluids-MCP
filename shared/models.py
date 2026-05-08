@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Any, Optional
 from enum import Enum
-
+import uuid
 
 class ToolType(str, Enum):
     GENERATION = "generation"
@@ -13,7 +13,12 @@ class MCPRequest(BaseModel):
     query: str                                  # natural language from user
     tool_type: Optional[ToolType] = None        # filled by orchestrator after routing
     parameters: Optional[dict] = None           # additional parameters
+    request_id: str = ""                        # for tracing and debugging across tiers
 
+    def with_request_id(self) -> "MCPRequest":
+        self.request_id = str(uuid.uuid4())[:8] 
+        return self
+        
 
 # Response that flows bottom to top through all tiers
 class MCPResponse(BaseModel):

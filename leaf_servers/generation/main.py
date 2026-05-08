@@ -74,7 +74,7 @@ async def health():
 
 @app.post("/execute", response_model=MCPResponse)
 async def execute(request: MCPRequest):
-    logger.info(f"Generation leaf received: {request.query}")
+    logger.info(f"[{request.request_id}] Generation leaf received: {request.query}")
     try:
         result = await generate_udf(request.query)
         return MCPResponse(
