@@ -8,6 +8,15 @@ from fastapi.responses import HTMLResponse
 from dotenv import load_dotenv
 from shared.models import MCPRequest, MCPResponse, HealthResponse
 
+@app.on_event("startup")
+async def validate_config():
+    if not GROQ_API_KEY:
+        logger.error("GROQ_API_KEY not set — LLM routing will fail")
+        raise RuntimeError("GROQ_API_KEY environment variable is required")
+    logger.info("Config validated successfully")
+    logger.info(f"LLM model: {config['llm']['model']}")
+    logger.info(f"Sub-orchestrator: {FLUIDS_SUB_ORCHESTRATOR}")
+
 load_dotenv()
 
 # Load config
