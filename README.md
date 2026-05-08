@@ -1,4 +1,4 @@
-# Fluids MCP — AI Assistant Platform
+# Fluids MCP - AI Assistant Platform
 
 A multi-tier MCP-based server architecture that bridges AI assistants and 
 domain-specific CFD engineering applications. Engineers can drive simulation 
@@ -6,18 +6,20 @@ workflows using natural language from inside their IDE or a chat interface.
 
 ## Architecture Overview
 
+```
 AI Client (Chat UI / IDE)
-↓
-Top-level Orchestrator (port 8000)  ← LLM-based routing
-↓
-Fluids Sub-orchestrator (port 8001) ← Domain gateway
-↓
-┌─────────────────┐     ┌──────────────────┐
-│ Generation Leaf │     │ Validation Leaf  │
-│ (port 8002)     │     │ (port 8003)      │
-│ Groq LLM        │     │ Mocked HTTP API  │
-│ UDF generation  │     │ Bearer token auth│
-└─────────────────┘     └──────────────────┘
+            ↓
+    Top-level Orchestrator (port 8000)  <- LLM-based routing
+            ↓
+    Fluids Sub-orchestrator (port 8001) <- Domain gateway
+            ↓
+    +-----------------+     +------------------+
+    | Generation Leaf |     | Validation Leaf  |
+    | (port 8002)     |     | (port 8003)      |
+    | Groq LLM        |     | Mocked HTTP API  |
+    | UDF generation  |     | Bearer token auth|
+    +-----------------+     +------------------+
+```
 
 ## Quick Start
 
@@ -46,6 +48,7 @@ pip install -r requirements.txt
 Create a `.env` file in the root directory:
 
 GROQ_API_KEY=your_groq_api_key_here
+
 VALIDATION_API_TOKEN=mock_token_12345
 
 Get a free Groq API key at: https://console.groq.com
@@ -95,13 +98,13 @@ Is my mesh density sufficient for turbulent flow?
 
 ### 1. Dynamic Tool Registration
 Leaf servers register themselves with the sub-orchestrator on startup.
-No manual configuration required — add a new leaf server and it
+No manual configuration required - add a new leaf server and it
 registers automatically.
 
 ### 2. LLM-Based Routing
 The top-level orchestrator uses Groq's LLaMA model to read the tool
 manifest and decide which tool to invoke based on natural language intent.
-Routing is purely description-driven — no hardcoded rules.
+Routing is purely description-driven - no hardcoded rules.
 
 ### 3. Graceful Degradation
 If a leaf server is unavailable, the sub-orchestrator returns a clean
@@ -115,6 +118,7 @@ Visible in logs for end-to-end debugging.
 
 ## Project Structure
 
+```
 fluids_mcp/
 ├── config/
 │   └── config.yaml              # ports, endpoints, LLM config
@@ -137,7 +141,7 @@ fluids_mcp/
 │   └── index.html               # chat UI
 ├── startup.bat                  # starts all services
 └── requirements.txt
-
+```
 
 ---
 
