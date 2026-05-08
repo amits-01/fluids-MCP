@@ -43,6 +43,9 @@ async def generate_udf(query: str) -> str:
                             "You are a CFD expert. Generate Fluent UDF C code "
                             "based on the user's physics description. "
                             "Return only the C code with brief comments. "
+                            "Code should be ready to compile in Fluent. "
+                            "Include necessary headers and function definitions. "
+                            "Include comments explaining the physics being implemented. "
                             "No explanation outside the code."
                         )
                     },
@@ -104,6 +107,7 @@ async def register_with_sub_orchestrator():
             "from a natural language physics description. "
             "Use when user wants to create, write, or generate a UDF "
             "for Fluent simulation."
+            "Input should be a description of the physics to implement in the UDF. "
         ),
         endpoint=MY_ENDPOINT
     )
