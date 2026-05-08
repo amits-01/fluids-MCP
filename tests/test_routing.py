@@ -1,6 +1,12 @@
+import os
+import sys
 import pytest
 import httpx
 from unittest.mock import AsyncMock, patch
+
+# project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from shared.models import MCPRequest, MCPResponse, ToolRegistration
 
 
@@ -25,16 +31,16 @@ class TestLLMRouting:
             }
         ]
 
-        # Mock the LLM response
+        mock_response = AsyncMock()
+        mock_response.json = AsyncMock(return_value={
+            "choices": [{
+                "message": {
+                    "content": "generation"
+                }
+            }]
+        })
+
         with patch("orchestrator.main.httpx.AsyncClient") as mock_client:
-            mock_response = AsyncMock()
-            mock_response.json.return_value = {
-                "choices": [{
-                    "message": {
-                        "content": "generation"
-                    }
-                }]
-            }
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                 return_value=mock_response
             )
@@ -64,15 +70,16 @@ class TestLLMRouting:
             }
         ]
 
+        mock_response = AsyncMock()
+        mock_response.json = AsyncMock(return_value={
+            "choices": [{
+                "message": {
+                    "content": "validation"
+                }
+            }]
+        })
+
         with patch("orchestrator.main.httpx.AsyncClient") as mock_client:
-            mock_response = AsyncMock()
-            mock_response.json.return_value = {
-                "choices": [{
-                    "message": {
-                        "content": "validation"
-                    }
-                }]
-            }
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                 return_value=mock_response
             )
@@ -84,7 +91,7 @@ class TestLLMRouting:
             )
 
         assert result == "validation"
-
+    
 
 # Unit Tests, Tool Registry - tests that tools can be registered, retrieved, and listed correctly. 
 # Also tests edge cases like unknown tools and multiple registrations.

@@ -4,18 +4,11 @@ import httpx
 import yaml
 import json
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from fastapi.responses import HTMLResponse
 from dotenv import load_dotenv
 from shared.models import MCPRequest, MCPResponse, HealthResponse
 
-@app.on_event("startup")
-async def validate_config():
-    if not GROQ_API_KEY:
-        logger.error("GROQ_API_KEY not set — LLM routing will fail")
-        raise RuntimeError("GROQ_API_KEY environment variable is required")
-    logger.info("Config validated successfully")
-    logger.info(f"LLM model: {config['llm']['model']}")
-    logger.info(f"Sub-orchestrator: {FLUIDS_SUB_ORCHESTRATOR}")
 
 load_dotenv()
 
@@ -26,7 +19,20 @@ with open("config/config.yaml", "r") as f:
 logging.basicConfig(level=config["logging"]["level"].upper())
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Top-level Orchestrator")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    if not GROQ_API_KEY:
+        logger.error("GROQ_API_KEY not set — LLM routing will fail")
+        raise RuntimeError("GROQ_API_KEY environment variable is required")
+    logger.info("Config validated successfully")
+    logger.info(f"LLM model: {config['llm']['model']}")
+    logger.info(f"Sub-orchestrator: {FLUIDS_SUB_ORCHESTRATOR}")
+    yield
+    # Shutdown
+    logger.info("Orchestrator shutting down")
+
+app = FastAPI(title="Top-level Orchestrator", lifespan=lifespan)
 
 MY_PORT = config["orchestrator"]["port"]
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -68,7 +74,7 @@ async def route_with_llm(query: str, tools: list[dict]) -> str:
             },
             timeout=30.0
         )
-        data = response.json()
+        data = await response.json()
         tool_type = data["choices"][0]["message"]["content"].strip().lower()
         logger.info(f"LLM routed to: {tool_type}")
         return tool_type
@@ -154,7 +160,8 @@ async def chat(request: MCPRequest):
                 json=routed_request.model_dump(),
                 timeout=60.0
             )
-            return MCPResponse(**response.json())
+            data = await response.json()
+            return MCPResponse(**data)
 
     except httpx.TimeoutException:
         logger.error("Sub-orchestrator timeout")
