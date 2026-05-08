@@ -32,11 +32,7 @@ VALIDATION_API_TOKEN = os.getenv("VALIDATION_API_TOKEN")
 # Marked as mock as per assignment instructions
 
 async def call_validation_backend(setup_description: str) -> dict:
-    """
-    MOCK: Simulates calling an external CFD validation
-    REST API with bearer token authentication.
-    In production: replace with real endpoint URL.
-    """
+
     logger.info(f"Calling validation backend at {VALIDATION_API_URL}")
     logger.info("Authorization: Bearer token used — not logged for security")
 
