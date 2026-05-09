@@ -221,5 +221,5 @@ llm:
   temperature: 0.1
 ```
 
-Secrets are managed via `.env` — never hardcoded.
+Secrets are managed via `.env` - never hardcoded.
 
