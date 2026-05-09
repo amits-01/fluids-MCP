@@ -41,7 +41,7 @@ FLUIDS_SUB_ORCHESTRATOR = f"http://localhost:{config['sub_orchestrators']['fluid
 
 # LLM Routing - uses LLM to decide which tool to invoke based on user query and available tools.
 
-async def route_with_llm(query: str, tools: list[dict]) -> str:
+async def route_with_llm(query: str, tools: list[dict], request_id: str = "") -> str:
     tool_descriptions = json.dumps(tools, indent=2)
 
     prompt = f"""You are a routing assistant for a CFD engineering platform.
@@ -74,9 +74,9 @@ async def route_with_llm(query: str, tools: list[dict]) -> str:
             },
             timeout=30.0
         )
-        data = await response.json()
+        data = response.json()
         tool_type = data["choices"][0]["message"]["content"].strip().lower()
-        logger.info(f"LLM routed to: {tool_type}")
+        logger.info(f"[{request_id}] LLM routed to: {tool_type}")
         return tool_type
 
 
@@ -144,13 +144,14 @@ async def chat(request: MCPRequest):
         )
 
     # Step 2 — LLM decides which tool to use
-    tool_type = await route_with_llm(request.query, tools)
+    tool_type = await route_with_llm(request.query, tools, request.request_id)
 
     # Step 3 — Forward to sub-orchestrator with routing decision
     routed_request = MCPRequest(
         query=request.query,
         tool_type=tool_type,
-        parameters=request.parameters
+        parameters=request.parameters,
+        request_id=request.request_id
     )
 
     try:
@@ -160,7 +161,7 @@ async def chat(request: MCPRequest):
                 json=routed_request.model_dump(),
                 timeout=60.0
             )
-            data = await response.json()
+            data = response.json()
             return MCPResponse(**data)
 
     except httpx.TimeoutException:

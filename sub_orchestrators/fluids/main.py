@@ -52,7 +52,7 @@ async def list_tools():
 # Finds correct leaf server and forwards request.
 @app.post("/execute", response_model=MCPResponse)
 async def execute(request: MCPRequest):
-    logger.info(f"[{request.request_id}] Sub-orchestrator received: {request.query}, tool: {request.tool_type}")
+    logger.info(f"[{request.request_id}] Sub-orchestrator forwarding to {request.tool_type.value} leaf")
 
     # Find the right leaf based on tool_type
     tools = registry.get_all_tools()

@@ -83,7 +83,7 @@ async def execute(request: MCPRequest):
             result=result
         )
     except Exception as e:
-        logger.error(f"Generation failed: {e}")
+        logger.error(f"[{request.request_id}] Generation failed: {e}")
         return MCPResponse(
             success=False,
             tool_used="udf_generation",

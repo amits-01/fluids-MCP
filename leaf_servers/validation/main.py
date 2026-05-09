@@ -90,7 +90,7 @@ async def execute(request: MCPRequest):
             result=result
         )
     except Exception as e:
-        logger.error(f"Validation failed: {e}")
+        logger.error(f"[{request.request_id}] Validation failed: {e}")
         return MCPResponse(
             success=False,
             tool_used="cfd_validation",
