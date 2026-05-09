@@ -1,4 +1,4 @@
-# Architecture Document — Fluids MCP Platform
+# Architecture Document - Fluids MCP Platform
 
 ## 1. System Overview
 
@@ -62,7 +62,7 @@ chat interface or IDE, without needing to know the internal system topology.
 
 ---
 
-## 3. Tool/Capability Wiring — Request Flow Diagram
+## 3. Tool/Capability Wiring - Request Flow Diagram
 
     Engineer types:
     "Generate a UDF for parabolic inlet velocity"
@@ -115,21 +115,21 @@ chat interface or IDE, without needing to know the internal system topology.
 
 ## 4. Tier Responsibilities
 
-### Tier 1 — Top-level Orchestrator
+### Tier 1 - Top-level Orchestrator
 - Single unified entry point for all AI clients
 - Responsible for LLM-based intent routing only
 - Discovers tools dynamically from sub-orchestrators
 - Has no knowledge of what tools do internally
 - Assigns request_id for end-to-end tracing
 
-### Tier 2 — Domain Sub-orchestrator
+### Tier 2 - Domain Sub-orchestrator
 - Groups related capabilities under one domain
 - Maintains a local tool registry
 - Accepts dynamic registration from leaf servers
 - Routes requests to correct leaf based on tool_type
 - Handles graceful degradation if leaf is unavailable
 
-### Tier 3 — Leaf Servers
+### Tier 3 - Leaf Servers
 - Each owns exactly one bounded capability
 - Registers itself with sub-orchestrator on startup
 - Talks directly to its backend
@@ -195,7 +195,7 @@ chat interface or IDE, without needing to know the internal system topology.
     Orchestrator routes accordingly
 
 Key design decision: LLM routing is description-driven.
-Adding a new tool requires no routing code changes —
+Adding a new tool requires no routing code changes -
 just a good description in the tool registration.
 
 ---

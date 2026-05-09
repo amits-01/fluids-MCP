@@ -1,44 +1,44 @@
-# Design Rationale — Fluids MCP Platform
+# Design Rationale - Fluids MCP Platform
 
 ## 1. Protocol and Framework Choice
 
-### Inter-tier Communication — HTTP REST via FastAPI
+### Inter-tier Communication - HTTP REST via FastAPI
 
 I chose HTTP REST over alternatives like gRPC, message queues, 
 or native MCP stdio transport for the following reasons:
 
 **Why FastAPI:**
-- Async-first with native asyncio support — essential for handling 
+- Async-first with native asyncio support - essential for handling 
   concurrent requests from multiple engineers without blocking
-- Automatic request/response validation via Pydantic models — 
+- Automatic request/response validation via Pydantic models - 
   enforces clean contracts between tiers at runtime
-- Built-in OpenAPI docs at /docs — every tier is self-documenting
-- Lightweight and fast to iterate on — appropriate for a prototype
+- Built-in OpenAPI docs at /docs - every tier is self-documenting
+- Lightweight and fast to iterate on - appropriate for a prototype
   that needs to demonstrate architectural thinking clearly
 
 **Why HTTP over gRPC:**
 - Each tier is independently runnable and testable with standard 
-  HTTP tooling — curl, Postman, browser
-- No schema compilation step — faster iteration during prototyping
-- Easier to debug across tiers — standard HTTP logs are readable
+  HTTP tooling - curl, Postman, browser
+- No schema compilation step - faster iteration during prototyping
+- Easier to debug across tiers - standard HTTP logs are readable
 - At production scale, gRPC would be worth reconsidering for 
   its performance characteristics and strong schema contracts
 
 **Why not native MCP stdio transport:**
 - stdio transport is designed for local same-machine communication
-- Our tiers are designed to be independently deployable — 
+- Our tiers are designed to be independently deployable - 
   potentially on different machines or containers
 - HTTP+SSE transport is the correct MCP transport for enterprise 
   remote deployments, which is what this architecture targets
 
-### LLM Provider — Groq with LLaMA 3.3
+### LLM Provider - Groq with LLaMA 3.3
 
 I chose Groq as the LLM provider because:
-- OpenAI-compatible API — satisfies the assignment requirement 
+- OpenAI-compatible API - satisfies the assignment requirement 
   and allows provider swapping via config with zero code changes
-- Free tier available — no access barriers for reviewers running 
+- Free tier available - no access barriers for reviewers running 
   the prototype
-- Fast inference — LLaMA 3.3 70B on Groq responds in ~1-2 seconds,
+- Fast inference - LLaMA 3.3 70B on Groq responds in ~1-2 seconds,
   keeping routing latency acceptable
 
 Provider swap requires only one config change:
@@ -56,17 +56,17 @@ llm:
 The architecture is designed for zero-orchestrator-change extensibility.
 Adding a Structural Analysis domain requires exactly four steps:
 
-**Step 1 — Create the sub-orchestrator:**
+**Step 1 - Create the sub-orchestrator:**
 Copy `sub_orchestrators/fluids/main.py` to 
 `sub_orchestrators/structural/main.py`.
 Change the service name and port. No logic changes needed.
 
-**Step 2 — Create leaf servers:**
+**Step 2 - Create leaf servers:**
 Create `leaf_servers/stress_analysis/main.py` with a single 
 bounded capability. Implement the `register_with_sub_orchestrator` 
 startup function pointing to the structural sub-orchestrator.
 
-**Step 3 — Add to config:**
+**Step 3 - Add to config:**
 ```yaml
 sub_orchestrators:
   structural:
@@ -77,20 +77,20 @@ leaf_servers:
     port: 8005
 ```
 
-**Step 4 — Add to startup script:**
+**Step 4 - Add to startup script:**
 Add two new uvicorn commands to startup.bat.
 
 **What does NOT change:**
-- Top-level orchestrator — zero modifications
-- Existing fluids servers — completely unaffected
-- Routing logic — new tools appear automatically in the 
+- Top-level orchestrator - zero modifications
+- Existing fluids servers - completely unaffected
+- Routing logic - new tools appear automatically in the 
   tool manifest once the structural leaf registers itself
-- LLM routing — description-driven, no hardcoded rules
+- LLM routing - description-driven, no hardcoded rules
 
 This extensibility is possible because:
-- Tool discovery is dynamic — orchestrator polls sub-orchestrators
-- Routing is description-driven — LLM reads tool descriptions
-- Each tier has a clean contract — MCPRequest/MCPResponse models
+- Tool discovery is dynamic - orchestrator polls sub-orchestrators
+- Routing is description-driven - LLM reads tool descriptions
+- Each tier has a clean contract - MCPRequest/MCPResponse models
 
 ---
 
@@ -101,13 +101,13 @@ This extensibility is possible because:
 **In-memory tool registry:**
 The sub-orchestrator stores registered tools in memory. If it 
 restarts, all leaf registrations are lost and leaves must re-register.
-This is acceptable for a prototype — in production, a persistent 
+This is acceptable for a prototype - in production, a persistent 
 registry (Redis or a database) would be used.
 
 **Synchronous LLM routing:**
 Every request makes a live LLM call for routing. This adds 1-2 
 seconds of latency per request. At production scale I would 
-add a routing cache — identical or semantically similar queries 
+add a routing cache - identical or semantically similar queries 
 return cached routing decisions without an LLM call.
 
 **Single sub-orchestrator per domain:**
@@ -141,17 +141,17 @@ return cached tool_type instantly. Reduces latency from ~2s to
 
 **3. Authentication and RBAC**
 Add OAuth2 at the orchestrator entry point. Enforce per-tool 
-authorization policies at the sub-orchestrator — not every 
+authorization policies at the sub-orchestrator - not every 
 engineer should have access to every capability.
 
 **4. Horizontal Scaling**
-Each tier is stateless by design — ready for horizontal scaling 
+Each tier is stateless by design - ready for horizontal scaling 
 behind a load balancer. The only stateful component is the tool 
 registry, which moves to Redis at scale.
 
 **5. Structured Observability**
 Replace Python logging with structured JSON logs (structlog). 
-Add OpenTelemetry tracing — the request_id foundation is already 
+Add OpenTelemetry tracing - the request_id foundation is already 
 in place. Add Prometheus metrics for request latency, routing 
 decisions, and leaf server error rates.
 
