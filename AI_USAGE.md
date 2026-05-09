@@ -24,6 +24,9 @@ an operational endpoint for manual testing and not a deliverable
 being evaluated for design quality. Using AI here saved time without 
 compromising the core work, and also made the output more clean and appealing.
 
+### 3. CFD Domain
+AI was used to design examples related to Fluid Dynamics Engineering domain in generation/validation servers and overall architecture topic. Fluid Dynamics is not my primary domain of work therefore AI was used to understand example engineering scenarios to make the complete system relevant for this assignment. Here, AI imitates the expertise that an engineer brings to the overall development. 
+
 ---
 
 ## Where AI Was NOT Used
