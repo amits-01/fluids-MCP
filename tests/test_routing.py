@@ -2,7 +2,7 @@ import os
 import sys
 import pytest
 import httpx
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 # project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -32,7 +32,7 @@ class TestLLMRouting:
         ]
 
         mock_response = AsyncMock()
-        mock_response.json = AsyncMock(return_value={
+        mock_response.json = MagicMock(return_value={
             "choices": [{
                 "message": {
                     "content": "generation"
@@ -71,7 +71,7 @@ class TestLLMRouting:
         ]
 
         mock_response = AsyncMock()
-        mock_response.json = AsyncMock(return_value={
+        mock_response.json = MagicMock(return_value={
             "choices": [{
                 "message": {
                     "content": "validation"
@@ -197,7 +197,7 @@ class TestEndToEnd:
              patch("orchestrator.main.route_with_llm", return_value="generation"), \
              patch("orchestrator.main.httpx.AsyncClient") as mock_client:
 
-            mock_resp = AsyncMock()
+            mock_resp = MagicMock()
             mock_resp.json.return_value = mock_response_data
             mock_client.return_value.__aenter__.return_value.post = AsyncMock(
                 return_value=mock_resp
@@ -211,6 +211,7 @@ class TestEndToEnd:
 
         assert response.status_code == 200
         data = response.json()
+        print("Test Response:", data)
         assert data["success"] is True
         assert data["tool_used"] == "udf_generation"
         assert data["result"] is not None

@@ -56,7 +56,7 @@ Get a free Groq API key at: https://console.groq.com
 ### 5. Start all services
 
 ```bash
-startup.bat
+.\startup.bat
 ```
 
 This starts all four services in the correct order with proper delays.
