@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # Startup
     if not GROQ_API_KEY:
-        logger.error("GROQ_API_KEY not set — LLM routing will fail")
+        logger.error("GROQ_API_KEY not set - LLM routing will fail")
         raise RuntimeError("GROQ_API_KEY environment variable is required")
     logger.info("Config validated successfully")
     logger.info(f"LLM model: {config['llm']['model']}")
@@ -46,7 +46,7 @@ async def route_with_llm(query: str, tools: list[dict], request_id: str = "") ->
 
     prompt = f"""You are a routing assistant for a CFD engineering platform.
     Given a user query and available tools, decide which tool_type to use.
-    Respond with ONLY the tool_type value — nothing else.
+    Respond with ONLY the tool_type value - nothing else.
 
     Available tools:
     {tool_descriptions}
@@ -132,7 +132,7 @@ async def chat(request: MCPRequest):
     request = request.with_request_id()  # Add unique request ID for tracing
     logger.info(f"[{request.request_id}] Orchestrator received: {request.query}")
 
-    # Step 1 — Discover available tools
+    # Step 1 - Discover available tools
     tools = await discover_tools()
 
     if not tools:
@@ -140,13 +140,13 @@ async def chat(request: MCPRequest):
             success=False,
             tool_used="none",
             result=None,
-            error="No tools available — sub-orchestrator may be down"
+            error="No tools available - sub-orchestrator may be down"
         )
 
-    # Step 2 — LLM decides which tool to use
+    # Step 2 - LLM decides which tool to use
     tool_type = await route_with_llm(request.query, tools, request.request_id)
 
-    # Step 3 — Forward to sub-orchestrator with routing decision
+    # Step 3 - Forward to sub-orchestrator with routing decision
     routed_request = MCPRequest(
         query=request.query,
         tool_type=tool_type,

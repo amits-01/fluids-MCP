@@ -34,7 +34,7 @@ VALIDATION_API_TOKEN = os.getenv("VALIDATION_API_TOKEN")
 async def call_validation_backend(setup_description: str) -> dict:
 
     logger.info(f"Calling validation backend at {VALIDATION_API_URL}")
-    logger.info("Authorization: Bearer token used — not logged for security")
+    logger.info("Authorization: Bearer token used - not logged for security")
 
     # Simulate HTTP call with bearer token auth
     # In production this would be:
